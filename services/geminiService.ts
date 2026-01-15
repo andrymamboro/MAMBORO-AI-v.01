@@ -7,10 +7,11 @@ export const processImageEdit = async (
   aspectRatio: AspectRatio = "1:1",
   refImage?: string | null
 ): Promise<EditResult> => {
-  // Always create a fresh instance right before usage to ensure current API KEY from context
+  // Selalu buat instance baru sebelum pemanggilan untuk memastikan menggunakan kunci API terbaru
+  // process.env.API_KEY akan otomatis berisi kunci yang dipilih user melalui dialog
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
-  // Helper to extract clean base64 and mime type correctly
+  // Helper untuk membersihkan data base64 (menghapus prefix data:image/...)
   const parseBase64 = (base64: string) => {
     if (!base64.includes(';base64,')) {
       return { mimeType: 'image/png', data: base64 };
@@ -23,6 +24,7 @@ export const processImageEdit = async (
 
   const sourceData = parseBase64(base64Image);
 
+  // Struktur parts: Gambar sumber harus selalu ada di urutan awal
   const parts: any[] = [
     {
       inlineData: {
@@ -42,28 +44,11 @@ export const processImageEdit = async (
     });
     
     parts.push({
-      text: `TASK: PROFESSIONAL IMAGE EDITING. 
-      Input 1: The subject to be edited.
-      Input 2: The clothing/style reference.
-      
-      INSTRUCTION: ${prompt}.
-      
-      REQUIREMENTS:
-      1. Strictly follow the clothing style/color from Input 2.
-      2. Perfectly preserve the facial features, hair, and identity of the person in Input 1.
-      3. Maintain natural lighting and high-quality blending.
-      4. Output only the final edited image. No text commentary.`
+      text: `INSTRUCTION: ${prompt}. TASK: Use the style or content from the second image and apply it to the first image. Preserve the subject's identity.`
     });
   } else {
     parts.push({
-      text: `TASK: PROFESSIONAL IMAGE EDITING.
-      INSTRUCTION: ${prompt}.
-      
-      REQUIREMENTS:
-      1. High-fidelity modification based on prompt.
-      2. Preserve the original subject's identity and basic features.
-      3. Professional grade image blending and realistic lighting.
-      4. Output only the resulting image.`
+      text: `INSTRUCTION: ${prompt}. TASK: Edit this image based on the instruction while maintaining the subject's likeness.`
     });
   }
 
@@ -85,22 +70,32 @@ export const processImageEdit = async (
     if (candidates && candidates.length > 0 && candidates[0].content.parts) {
       for (const part of candidates[0].content.parts) {
         if (part.inlineData) {
+          // Menemukan bagian gambar dalam respon
           resultImageUrl = `data:image/png;base64,${part.inlineData.data}`;
         } else if (part.text) {
-          resultText = part.text;
+          // Menangkap teks penjelasan jika ada
+          resultText += part.text;
         }
       }
     }
 
     if (!resultImageUrl) {
-      throw new Error("AI tidak menghasilkan gambar. Ini mungkin karena filter keamanan atau instruksi yang kurang jelas.");
+      // Jika tidak ada gambar, mungkin AI menolak karena kebijakan keamanan
+      if (resultText) {
+        throw new Error(`AI Responded: ${resultText}`);
+      }
+      throw new Error("AI tidak menghasilkan gambar. Hal ini mungkin disebabkan oleh filter keamanan (Safety Filter) atau instruksi yang terlalu ambigu.");
     }
 
     return { imageUrl: resultImageUrl, text: resultText };
   } catch (error: any) {
     console.error("Gemini Edit Service Error:", error);
     
-    // Bubble up error to App.tsx to handle key re-selection if needed
+    // Penanganan error spesifik untuk kunci API
+    if (error.message?.includes("API key not valid") || error.message?.includes("entity was not found")) {
+      throw new Error("Koneksi API bermasalah. Silakan pilih kembali Kunci API (Paid Project) Anda di menu Pengaturan.");
+    }
+    
     throw error;
   }
 };

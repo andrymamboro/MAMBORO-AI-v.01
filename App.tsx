@@ -16,12 +16,15 @@ import LoginScreen from './components/LoginScreen';
 import Logo from './components/Logo';
 
 type AppMode = 'general' | 'clothes' | 'reference';
-const MAX_DAILY_QUOTA = 10;
+const MAX_DAILY_QUOTA = 5;
 const QUOTA_STORAGE_KEY = 'mamboro_quota_v4';
 const RESET_DATE_KEY = 'mamboro_reset_v4';
+const AUTH_KEY = 'mamboro_auth_session';
 
 const App: React.FC = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(() => {
+    return localStorage.getItem(AUTH_KEY) === 'true';
+  });
   const [mode, setMode] = useState<AppMode>('general');
   const [sourceImage, setSourceImage] = useState<string | null>(null);
   const [refImage, setRefImage] = useState<string | null>(null);
@@ -53,9 +56,20 @@ const App: React.FC = () => {
     initQuota();
   }, []);
 
-  const resetQuota = () => {
-    setQuota(MAX_DAILY_QUOTA);
-    localStorage.setItem(QUOTA_STORAGE_KEY, MAX_DAILY_QUOTA.toString());
+  const handleLogin = () => {
+    localStorage.setItem(AUTH_KEY, 'true');
+    setIsLoggedIn(true);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem(AUTH_KEY);
+    setIsLoggedIn(false);
+    setIsSettingsOpen(false);
+    // Reset state after logout
+    setSourceImage(null);
+    setRefImage(null);
+    setResultImage(null);
+    setStatus(AppStatus.IDLE);
   };
 
   const handleImageUpload = (base64: string) => {
@@ -100,12 +114,18 @@ const App: React.FC = () => {
       }, 500);
     } catch (err: any) {
       console.error(err);
-      setErrorMsg(err.message || "Terjadi kegagalan sistem. Coba beberapa saat lagi.");
+      
+      // If error is related to missing entities (API key issues), prompt re-selection
+      if (err.message && err.message.includes("Requested entity was not found")) {
+         setErrorMsg("Koneksi API bermasalah. Silakan pilih kembali Kunci API Anda di menu Pengaturan.");
+      } else {
+         setErrorMsg(err.message || "Terjadi kegagalan sistem. Coba beberapa saat lagi.");
+      }
       setStatus(AppStatus.ERROR);
     }
   };
 
-  if (!isLoggedIn) return <LoginScreen onLoginSuccess={() => setIsLoggedIn(true)} />;
+  if (!isLoggedIn) return <LoginScreen onLoginSuccess={handleLogin} />;
 
   return (
     <div className="min-h-screen flex flex-col bg-[#0f172a] text-slate-100 animate-in fade-in duration-700 overflow-x-hidden">
@@ -118,12 +138,11 @@ const App: React.FC = () => {
       <SettingsModal 
         isOpen={isSettingsOpen} 
         onClose={() => setIsSettingsOpen(false)}
-        onResetQuota={resetQuota}
+        onLogout={handleLogout}
         quota={quota}
       />
 
       <main className="flex-grow w-full max-w-6xl mx-auto md:px-4 py-2 md:py-8">
-        {/* Status Dashboard Banner - Logo removed */}
         <div className="mb-4 md:mb-10 p-3 md:p-4 mx-2 md:mx-0 bg-gradient-to-br from-indigo-600/5 via-slate-800/40 to-blue-600/5 border border-slate-700/30 rounded-2xl md:rounded-[2rem] flex items-center gap-3 md:gap-4 shadow-xl backdrop-blur-sm relative overflow-hidden group">
           <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 blur-[40px] rounded-full -mr-10 -mt-10"></div>
           <div className="relative z-10 overflow-hidden pl-2">
@@ -137,7 +156,6 @@ const App: React.FC = () => {
           </div>
         </div>
 
-        {/* Mode Toggler - 3 Tabs with Icons */}
         <div className="flex justify-center mb-6 md:mb-10 px-2 md:px-0">
           <div className="bg-slate-900/80 p-1 rounded-2xl md:rounded-3xl border border-slate-700 backdrop-blur-md flex w-full md:w-auto gap-1 shadow-2xl overflow-x-auto no-scrollbar">
             <button 
