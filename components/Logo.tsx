@@ -6,7 +6,7 @@ interface LogoProps {
   size?: number;
 }
 
-const Logo: React.FC<LogoProps> = ({ className = "w-10 h-10", size = 40 }) => {
+const Logo: React.FC<LogoProps> = ({ className = "w-10 h-10", size = 60 }) => {
   return (
     <div className={`relative flex items-center justify-center ${className}`}>
       <svg 

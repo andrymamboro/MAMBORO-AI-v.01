@@ -1,4 +1,3 @@
-
 import React from 'react';
 
 interface Props {
@@ -40,7 +39,7 @@ const SettingsModal: React.FC<Props> = ({ isOpen, onClose, onResetQuota, quota }
 
           <div className="pt-4 border-t border-slate-800">
             <p className="text-[10px] text-slate-600 text-center leading-relaxed">
-              Versi Aplikasi: 1.0.5 Pro<br/>
+              Versi Aplikasi: 1.0.5 Image<br/>
               © 2025 Mamboro-Ai Studio
             </p>
           </div>

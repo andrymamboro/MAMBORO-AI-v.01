@@ -1,4 +1,3 @@
-
 import React from 'react';
 import Logo from './Logo';
 
@@ -23,7 +22,7 @@ const Header: React.FC<Props> = ({ onOpenSettings, quota = 0, maxQuota = 5 }) =>
             <h1 className="text-xl font-bold tracking-tight text-white leading-none">
               Mamboro<span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-fuchsia-500">Ai</span>
             </h1>
-            <p className="text-[10px] uppercase tracking-widest text-cyan-400/80 font-bold mt-1">Pro Studio</p>
+            <p className="text-[10px] uppercase tracking-widest text-cyan-400/80 font-bold mt-1">Image Studio</p>
           </div>
         </div>
         
