@@ -7,7 +7,6 @@ interface Props {
 }
 
 // Global declaration to handle pre-configured window.aistudio from the environment
-// Fix: Move the interface into global scope and make it optional to avoid modifier/type mismatch errors
 declare global {
   interface AIStudio {
     hasSelectedApiKey: () => Promise<boolean>;
@@ -25,6 +24,7 @@ const LoginScreen: React.FC<Props> = ({ onLoginSuccess }) => {
   useEffect(() => {
     const handleResize = () => setWindowWidth(window.innerWidth);
     window.addEventListener('resize', handleResize);
+    // Fixed: window.removeResizeListener is incorrect, use window.removeEventListener
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
@@ -33,29 +33,30 @@ const LoginScreen: React.FC<Props> = ({ onLoginSuccess }) => {
   const handleEnter = async () => {
     setIsLoading(true);
     try {
-      // Fix: Add check for window.aistudio before use as it is now defined as optional
-      if (!window.aistudio) {
-        throw new Error("Layanan AI Studio tidak tersedia di lingkungan ini.");
-      }
-
-      // Periksa apakah pengguna sudah memilih kunci API Google mereka
-      const hasKey = await window.aistudio.hasSelectedApiKey();
-      
-      if (!hasKey) {
-        // Jika belum, buka dialog pemilihan kunci Google (Billing & Project)
-        await window.aistudio.openSelectKey();
-        // Asumsikan sukses setelah trigger dialog sesuai instruksi sistem
+      // Periksa apakah window.aistudio tersedia (hanya ada di environment Mamboro Editor)
+      if (window.aistudio) {
+        const hasKey = await window.aistudio.hasSelectedApiKey();
+        if (!hasKey) {
+          await window.aistudio.openSelectKey();
+        }
+      } else {
+        // Fallback: Jika tidak ada di environment editor, periksa apakah API_KEY sudah ada di process.env
+        // Ini memungkinkan aplikasi yang sudah di-build/deploy tetap berjalan
+        if (!process.env.API_KEY || process.env.API_KEY === 'YOUR_GEMINI_API_KEY_HERE') {
+          console.warn("API Key tidak ditemukan di environment. Pastikan file .env sudah terisi.");
+          // Tetap lanjutkan untuk melihat apakah API membalas dengan error 401 nanti
+        }
       }
       
       // Tunggu sebentar untuk efek transisi yang mulus
       setTimeout(() => {
         onLoginSuccess();
         setIsLoading(false);
-      }, 1000);
+      }, 800);
     } catch (error: any) {
       console.error("Login Error:", error);
       setIsLoading(false);
-      alert(error.message || "Gagal melakukan autentikasi Google. Silakan coba lagi.");
+      alert(error.message || "Gagal masuk. Silakan periksa konfigurasi API Key Anda.");
     }
   };
 
