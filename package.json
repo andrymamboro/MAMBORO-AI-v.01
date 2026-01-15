@@ -1,0 +1,36 @@
+
+{
+  "name": "mamboro-ai",
+  "version": "1.0.1",
+  "private": true,
+  "description": "Professional AI Image Editor powered by Gemini 2.5 Flash",
+  "type": "module",
+  "homepage": "https://andrymamboro.github.io/MAMBORO-AI/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/andrymamboro/MAMBORO-AI.git"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist"
+  },
+  "dependencies": {
+    "@google/genai": "^1.35.0",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.8",
+    "@types/react-dom": "^19.0.3",
+    "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.4.20",
+    "gh-pages": "^6.3.0",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.7.3",
+    "vite": "^6.0.11"
+  }
+}

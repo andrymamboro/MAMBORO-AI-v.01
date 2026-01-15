@@ -1,0 +1,7 @@
+{
+  "name": "MAMBORO-AI",
+  "description": "Professional image editing powered by Gemini 2.5 Flash Image. Custom clothes, background removal, and pro editing.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
