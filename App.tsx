@@ -123,12 +123,10 @@ const App: React.FC = () => {
       />
 
       <main className="flex-grow w-full max-w-6xl mx-auto md:px-4 py-2 md:py-8">
+        {/* Status Dashboard Banner - Logo removed */}
         <div className="mb-4 md:mb-10 p-3 md:p-4 mx-2 md:mx-0 bg-gradient-to-br from-indigo-600/5 via-slate-800/40 to-blue-600/5 border border-slate-700/30 rounded-2xl md:rounded-[2rem] flex items-center gap-3 md:gap-4 shadow-xl backdrop-blur-sm relative overflow-hidden group">
           <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 blur-[40px] rounded-full -mr-10 -mt-10"></div>
-          <div className="flex shrink-0 w-10 h-10 md:w-12 md:h-12 bg-slate-900 border border-slate-700/50 rounded-xl md:rounded-2xl items-center justify-center shadow-lg backdrop-blur-md relative z-10">
-            <Logo size={24} />
-          </div>
-          <div className="relative z-10 overflow-hidden">
+          <div className="relative z-10 overflow-hidden pl-2">
             <h2 className="text-xs md:text-sm font-bold text-slate-300 tracking-wide uppercase opacity-70 truncate">Studio Dashboard</h2>
           </div>
           <div className="ml-auto flex gap-3 relative z-10">
@@ -139,25 +137,34 @@ const App: React.FC = () => {
           </div>
         </div>
 
-        {/* Mode Toggler - 3 Tabs for mobile */}
+        {/* Mode Toggler - 3 Tabs with Icons */}
         <div className="flex justify-center mb-6 md:mb-10 px-2 md:px-0">
           <div className="bg-slate-900/80 p-1 rounded-2xl md:rounded-3xl border border-slate-700 backdrop-blur-md flex w-full md:w-auto gap-1 shadow-2xl overflow-x-auto no-scrollbar">
             <button 
               onClick={() => setMode('general')}
               className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-3 md:px-6 py-2.5 md:py-3 rounded-xl md:rounded-2xl font-bold transition-all duration-300 text-[10px] md:text-sm whitespace-nowrap ${mode === 'general' ? 'bg-blue-600 text-white shadow-xl shadow-blue-600/20' : 'text-slate-500 hover:text-slate-300 hover:bg-white/5'}`}
             >
+              <svg xmlns="http://www.w3.org/2000/svg" className={`h-3.5 w-3.5 md:h-4 md:w-4 transition-colors ${mode === 'general' ? 'text-white' : 'text-blue-400'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+              </svg>
               Umum
             </button>
             <button 
               onClick={() => setMode('clothes')}
               className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-3 md:px-6 py-2.5 md:py-3 rounded-xl md:rounded-2xl font-bold transition-all duration-300 text-[10px] md:text-sm whitespace-nowrap ${mode === 'clothes' ? 'bg-indigo-600 text-white shadow-xl shadow-indigo-600/20' : 'text-slate-500 hover:text-slate-300 hover:bg-white/5'}`}
             >
+              <svg xmlns="http://www.w3.org/2000/svg" className={`h-3.5 w-3.5 md:h-4 md:w-4 transition-colors ${mode === 'clothes' ? 'text-white' : 'text-indigo-400'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M20.38 3.46 16 2a4 4 0 0 0-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z" />
+              </svg>
               Baju
             </button>
             <button 
               onClick={() => setMode('reference')}
               className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-3 md:px-6 py-2.5 md:py-3 rounded-xl md:rounded-2xl font-bold transition-all duration-300 text-[10px] md:text-sm whitespace-nowrap ${mode === 'reference' ? 'bg-cyan-600 text-white shadow-xl shadow-cyan-600/20' : 'text-slate-500 hover:text-slate-300 hover:bg-white/5'}`}
             >
+              <svg xmlns="http://www.w3.org/2000/svg" className={`h-3.5 w-3.5 md:h-4 md:w-4 transition-colors ${mode === 'reference' ? 'text-white' : 'text-cyan-400'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
               Referensi
             </button>
           </div>
