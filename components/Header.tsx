@@ -1,6 +1,7 @@
 
 import React from 'react';
 import Logo from './Logo';
+import { getAvatarColor } from './LoginScreen';
 
 interface UserProfile {
   name: string;
@@ -35,7 +36,6 @@ const Header: React.FC<Props> = ({ onOpenSettings, quota = 0, maxQuota = 5, user
         </div>
         
         <div className="flex items-center gap-2 md:gap-5">
-          {/* Quota Display */}
           <div className={`flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3.5 py-1.5 sm:py-2 rounded-lg sm:rounded-xl border transition-all ${
             isEmpty 
               ? 'bg-red-500/10 border-red-500/20 text-red-400' 
@@ -57,11 +57,18 @@ const Header: React.FC<Props> = ({ onOpenSettings, quota = 0, maxQuota = 5, user
                <p className="text-[10px] font-bold text-white leading-tight">{user.name}</p>
                <p className="text-[9px] text-slate-500 font-medium">{user.email}</p>
             </div>
-            <img 
-              src={user.picture} 
-              alt={user.name} 
-              className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full border border-slate-700 shadow-lg group-hover:scale-105 transition-transform" 
-            />
+            
+            {user.picture ? (
+              <img 
+                src={user.picture} 
+                alt={user.name} 
+                className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full border border-slate-700 shadow-lg group-hover:scale-105 transition-transform object-cover" 
+              />
+            ) : (
+              <div className={`w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full border border-slate-700 shadow-lg group-hover:scale-105 transition-transform flex items-center justify-center text-white font-bold text-[10px] sm:text-xs md:text-base ${getAvatarColor(user.name)}`}>
+                {user.name.charAt(0).toUpperCase()}
+              </div>
+            )}
           </div>
         </div>
       </div>

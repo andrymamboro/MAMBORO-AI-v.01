@@ -96,7 +96,7 @@ const App: React.FC = () => {
 
   const handleEdit = async (customPrompt?: string, customRefImage?: string | null) => {
     if (quota <= 0) {
-      setErrorMsg("Kuota harian Anda telah habis. Silakan coba lagi besok.");
+      setErrorMsg("Kuota harian aplikasi Anda telah habis. Silakan coba lagi besok.");
       return;
     }
 
@@ -130,13 +130,17 @@ const App: React.FC = () => {
         resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }, 500);
     } catch (err: any) {
-      console.error(err);
-      if (err.message && err.message.includes("Requested entity was not found")) {
+      console.error("Edit Error:", err);
+      setStatus(AppStatus.ERROR);
+      
+      const errMsg = err.message || "";
+      if (errMsg.includes("RESOURCE_EXHAUSTED") || errMsg.includes("Quota exceeded") || errMsg.includes("429")) {
+         setErrorMsg("Kuota API Google (Free Tier) telah habis atau terbatas. Disarankan menggunakan API Key dari Project Google Cloud yang memiliki Penagihan (Paid Project). Silakan buka Pengaturan untuk memperbarui kunci.");
+      } else if (errMsg.includes("Requested entity was not found") || errMsg.includes("API key not valid")) {
          setErrorMsg("Koneksi API bermasalah. Silakan pilih kembali Kunci API Anda di menu Pengaturan.");
       } else {
-         setErrorMsg(err.message || "Terjadi kegagalan sistem. Coba beberapa saat lagi.");
+         setErrorMsg(errMsg || "Terjadi kegagalan sistem. Coba beberapa saat lagi.");
       }
-      setStatus(AppStatus.ERROR);
     }
   };
 
@@ -181,18 +185,27 @@ const App: React.FC = () => {
               onClick={() => setMode('general')}
               className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-3 md:px-6 py-2.5 md:py-3.5 rounded-xl md:rounded-2xl font-bold transition-all duration-300 text-[10px] md:text-sm whitespace-nowrap ${mode === 'general' ? 'bg-blue-600 text-white shadow-xl shadow-blue-600/20' : 'text-slate-500 hover:text-slate-300 hover:bg-white/5'}`}
             >
+              <svg xmlns="http://www.w3.org/2000/svg" className={`w-4 h-4 md:w-5 md:h-5 ${mode === 'general' ? 'text-white' : 'text-blue-400'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 6h16M4 12h16M4 18h7" />
+              </svg>
               Umum
             </button>
             <button 
               onClick={() => setMode('clothes')}
               className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-3 md:px-6 py-2.5 md:py-3.5 rounded-xl md:rounded-2xl font-bold transition-all duration-300 text-[10px] md:text-sm whitespace-nowrap ${mode === 'clothes' ? 'bg-indigo-600 text-white shadow-xl shadow-indigo-600/20' : 'text-slate-500 hover:text-slate-300 hover:bg-white/5'}`}
             >
+              <svg xmlns="http://www.w3.org/2000/svg" className={`w-4 h-4 md:w-5 md:h-5 ${mode === 'clothes' ? 'text-white' : 'text-indigo-400'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M20.38 3.46 16 2a4 4 0 0 0-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z" />
+              </svg>
               Ganti Baju
             </button>
             <button 
               onClick={() => setMode('reference')}
               className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-3 md:px-6 py-2.5 md:py-3.5 rounded-xl md:rounded-2xl font-bold transition-all duration-300 text-[10px] md:text-sm whitespace-nowrap ${mode === 'reference' ? 'bg-cyan-600 text-white shadow-xl shadow-cyan-600/20' : 'text-slate-500 hover:text-slate-300 hover:bg-white/5'}`}
             >
+              <svg xmlns="http://www.w3.org/2000/svg" className={`w-4 h-4 md:w-5 md:h-5 ${mode === 'reference' ? 'text-white' : 'text-cyan-400'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
               Referensi
             </button>
           </div>

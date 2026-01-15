@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { getAvatarColor } from './LoginScreen';
 
 interface UserProfile {
   name: string;
@@ -34,8 +35,8 @@ const SettingsModal: React.FC<Props> = ({ isOpen, onClose, onLogout, quota, user
       <div className="bg-slate-900 border border-slate-800 w-full max-w-md rounded-[2.5rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
         <div className="p-8 pb-4 flex items-center justify-between">
           <div className="flex flex-col">
-            <h2 className="text-2xl font-black text-white leading-tight">Akaun</h2>
-            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-[0.3em] mt-1">Google Identity Session</p>
+            <h2 className="text-2xl font-black text-white leading-tight">Akun Saya</h2>
+            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-[0.3em] mt-1">Sesi Aktif Google</p>
           </div>
           <button onClick={onClose} className="text-slate-500 hover:text-white transition-colors p-2.5 bg-white/5 hover:bg-white/10 rounded-full">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -47,8 +48,18 @@ const SettingsModal: React.FC<Props> = ({ isOpen, onClose, onLogout, quota, user
         <div className="px-8 pb-10 space-y-6">
           <div className="flex flex-col items-center py-6 gap-4">
              <div className="relative">
-                <img src={user.picture} alt={user.name} className="w-24 h-24 rounded-full border-4 border-slate-800 shadow-2xl" />
-                <div className="absolute bottom-0 right-0 w-8 h-8 bg-green-500 border-4 border-slate-900 rounded-full flex items-center justify-center">
+                {user.picture ? (
+                  <img 
+                    src={user.picture} 
+                    alt={user.name} 
+                    className="w-24 h-24 rounded-full border-4 border-slate-800 shadow-2xl object-cover" 
+                  />
+                ) : (
+                  <div className={`w-24 h-24 rounded-full border-4 border-slate-800 shadow-2xl flex items-center justify-center text-white font-bold text-4xl ${getAvatarColor(user.name)}`}>
+                    {user.name.charAt(0).toUpperCase()}
+                  </div>
+                )}
+                <div className="absolute bottom-0 right-0 w-8 h-8 bg-blue-500 border-4 border-slate-900 rounded-full flex items-center justify-center">
                    <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
                 </div>
              </div>
@@ -62,9 +73,9 @@ const SettingsModal: React.FC<Props> = ({ isOpen, onClose, onLogout, quota, user
             <div className="p-5 bg-slate-800/40 rounded-3xl border border-slate-800 flex items-center justify-between group">
               <div>
                 <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Status Token Harian</p>
-                <p className="text-base text-slate-200">Tersisa <span className="text-cyan-400 font-black">{quota} token</span></p>
+                <p className="text-base text-slate-200">Tersisa <span className="text-blue-400 font-black">{quota} token</span></p>
               </div>
-              <div className="w-12 h-12 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-center text-xs font-black text-cyan-400">
+              <div className="w-12 h-12 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-center text-xs font-black text-blue-400">
                 {quota}
               </div>
             </div>
@@ -73,10 +84,10 @@ const SettingsModal: React.FC<Props> = ({ isOpen, onClose, onLogout, quota, user
               onClick={handleChangeKey}
               className="w-full py-4 bg-slate-800/50 hover:bg-slate-800 text-slate-300 border border-slate-800 rounded-2xl text-sm font-bold transition-all flex items-center justify-center gap-3 group"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-cyan-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
               </svg>
-              Refresh Google AI Key
+              Ganti Google AI Key
             </button>
 
             <button 
@@ -89,8 +100,8 @@ const SettingsModal: React.FC<Props> = ({ isOpen, onClose, onLogout, quota, user
 
           <div className="pt-6 border-t border-slate-800">
             <p className="text-[10px] text-slate-600 text-center leading-relaxed font-medium">
-              V1.2.0 (Google Auth Integrated)<br/>
-              MAMBORO-AI © 2025. Terkoneksi ke Google Cloud Platform.
+              V2.1.0 (Google Identity Synced)<br/>
+              MAMBORO-AI STUDIO © 2025.
             </p>
           </div>
         </div>

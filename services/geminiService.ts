@@ -1,3 +1,4 @@
+
 import { GoogleGenAI } from "@google/genai";
 import { AspectRatio, EditResult } from "../types";
 
@@ -8,10 +9,9 @@ export const processImageEdit = async (
   refImage?: string | null
 ): Promise<EditResult> => {
   // Selalu buat instance baru sebelum pemanggilan untuk memastikan menggunakan kunci API terbaru
-  // process.env.API_KEY akan otomatis berisi kunci yang dipilih user melalui dialog
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
-  // Helper untuk membersihkan data base64 (menghapus prefix data:image/...)
+  // Helper untuk membersihkan data base64
   const parseBase64 = (base64: string) => {
     if (!base64.includes(';base64,')) {
       return { mimeType: 'image/png', data: base64 };
@@ -24,7 +24,7 @@ export const processImageEdit = async (
 
   const sourceData = parseBase64(base64Image);
 
-  // Struktur parts: Gambar sumber harus selalu ada di urutan awal
+  // Struktur parts
   const parts: any[] = [
     {
       inlineData: {
@@ -70,30 +70,32 @@ export const processImageEdit = async (
     if (candidates && candidates.length > 0 && candidates[0].content.parts) {
       for (const part of candidates[0].content.parts) {
         if (part.inlineData) {
-          // Menemukan bagian gambar dalam respon
           resultImageUrl = `data:image/png;base64,${part.inlineData.data}`;
         } else if (part.text) {
-          // Menangkap teks penjelasan jika ada
           resultText += part.text;
         }
       }
     }
 
     if (!resultImageUrl) {
-      // Jika tidak ada gambar, mungkin AI menolak karena kebijakan keamanan
       if (resultText) {
         throw new Error(`AI Responded: ${resultText}`);
       }
-      throw new Error("AI tidak menghasilkan gambar. Hal ini mungkin disebabkan oleh filter keamanan (Safety Filter) atau instruksi yang terlalu ambigu.");
+      throw new Error("AI tidak menghasilkan gambar. Hal ini mungkin disebabkan oleh filter keamanan (Safety Filter).");
     }
 
     return { imageUrl: resultImageUrl, text: resultText };
   } catch (error: any) {
     console.error("Gemini Edit Service Error:", error);
     
-    // Penanganan error spesifik untuk kunci API
-    if (error.message?.includes("API key not valid") || error.message?.includes("entity was not found")) {
-      throw new Error("Koneksi API bermasalah. Silakan pilih kembali Kunci API (Paid Project) Anda di menu Pengaturan.");
+    const errMsg = error.message || "";
+    // Penanganan error spesifik untuk kuota atau kunci API
+    if (errMsg.includes("429") || errMsg.includes("RESOURCE_EXHAUSTED") || errMsg.includes("Quota exceeded")) {
+      throw new Error("RESOURCE_EXHAUSTED: Kuota API Free Tier habis. Silakan gunakan API Key dari Project Google Cloud dengan Billing aktif.");
+    }
+    
+    if (errMsg.includes("API key not valid") || errMsg.includes("entity was not found")) {
+      throw new Error("Koneksi API bermasalah. Silakan pilih kembali Kunci API Anda di menu Pengaturan.");
     }
     
     throw error;
