@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { processImageEdit } from './services/geminiService';
 import { AppStatus, AspectRatio } from './types';
@@ -13,18 +14,23 @@ import LoadingOverlay from './components/LoadingOverlay';
 import ErrorMessage from './components/ErrorMessage';
 import SettingsModal from './components/SettingsModal';
 import LoginScreen from './components/LoginScreen';
-import Logo from './components/Logo';
+
+interface UserProfile {
+  name: string;
+  email: string;
+  picture: string;
+}
 
 type AppMode = 'general' | 'clothes' | 'reference';
 const MAX_DAILY_QUOTA = 5;
-const QUOTA_STORAGE_KEY = 'mamboro_quota_v4';
-const RESET_DATE_KEY = 'mamboro_reset_v4';
-const AUTH_KEY = 'mamboro_auth_session';
+const AUTH_KEY = 'mamboro_user_profile_v2';
 
 const App: React.FC = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(() => {
-    return localStorage.getItem(AUTH_KEY) === 'true';
+  const [user, setUser] = useState<UserProfile | null>(() => {
+    const saved = localStorage.getItem(AUTH_KEY);
+    return saved ? JSON.parse(saved) : null;
   });
+  
   const [mode, setMode] = useState<AppMode>('general');
   const [sourceImage, setSourceImage] = useState<string | null>(null);
   const [refImage, setRefImage] = useState<string | null>(null);
@@ -38,34 +44,43 @@ const App: React.FC = () => {
 
   const resultRef = useRef<HTMLDivElement>(null);
 
+  // Inisialisasi kuota berdasarkan EMAIL user
   useEffect(() => {
+    if (!user) return;
+
     const initQuota = () => {
       const today = new Date().toISOString().split('T')[0];
-      const lastReset = localStorage.getItem(RESET_DATE_KEY);
-      const storedQuota = localStorage.getItem(QUOTA_STORAGE_KEY);
+      const quotaKey = `quota_${user.email}`;
+      const resetKey = `reset_${user.email}`;
+      
+      const lastReset = localStorage.getItem(resetKey);
+      const storedQuota = localStorage.getItem(quotaKey);
 
       if (lastReset !== today) {
         setQuota(MAX_DAILY_QUOTA);
-        localStorage.setItem(QUOTA_STORAGE_KEY, MAX_DAILY_QUOTA.toString());
-        localStorage.setItem(RESET_DATE_KEY, today);
+        localStorage.setItem(quotaKey, MAX_DAILY_QUOTA.toString());
+        localStorage.setItem(resetKey, today);
       } else if (storedQuota !== null) {
         setQuota(parseInt(storedQuota, 10));
+      } else {
+        setQuota(MAX_DAILY_QUOTA);
+        localStorage.setItem(quotaKey, MAX_DAILY_QUOTA.toString());
+        localStorage.setItem(resetKey, today);
       }
     };
     
     initQuota();
-  }, []);
+  }, [user]);
 
-  const handleLogin = () => {
-    localStorage.setItem(AUTH_KEY, 'true');
-    setIsLoggedIn(true);
+  const handleLogin = (profile: UserProfile) => {
+    localStorage.setItem(AUTH_KEY, JSON.stringify(profile));
+    setUser(profile);
   };
 
   const handleLogout = () => {
     localStorage.removeItem(AUTH_KEY);
-    setIsLoggedIn(false);
+    setUser(null);
     setIsSettingsOpen(false);
-    // Reset state after logout
     setSourceImage(null);
     setRefImage(null);
     setResultImage(null);
@@ -107,15 +122,15 @@ const App: React.FC = () => {
       
       const newQuota = Math.max(0, quota - 1);
       setQuota(newQuota);
-      localStorage.setItem(QUOTA_STORAGE_KEY, newQuota.toString());
+      if (user) {
+        localStorage.setItem(`quota_${user.email}`, newQuota.toString());
+      }
       
       setTimeout(() => {
         resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }, 500);
     } catch (err: any) {
       console.error(err);
-      
-      // If error is related to missing entities (API key issues), prompt re-selection
       if (err.message && err.message.includes("Requested entity was not found")) {
          setErrorMsg("Koneksi API bermasalah. Silakan pilih kembali Kunci API Anda di menu Pengaturan.");
       } else {
@@ -125,14 +140,15 @@ const App: React.FC = () => {
     }
   };
 
-  if (!isLoggedIn) return <LoginScreen onLoginSuccess={handleLogin} />;
+  if (!user) return <LoginScreen onLoginSuccess={handleLogin} />;
 
   return (
     <div className="min-h-screen flex flex-col bg-[#0f172a] text-slate-100 animate-in fade-in duration-700 overflow-x-hidden">
       <Header 
         onOpenSettings={() => setIsSettingsOpen(true)}
         quota={quota} 
-        maxQuota={MAX_DAILY_QUOTA} 
+        maxQuota={MAX_DAILY_QUOTA}
+        user={user}
       />
       
       <SettingsModal 
@@ -140,49 +156,43 @@ const App: React.FC = () => {
         onClose={() => setIsSettingsOpen(false)}
         onLogout={handleLogout}
         quota={quota}
+        user={user}
       />
 
       <main className="flex-grow w-full max-w-6xl mx-auto md:px-4 py-2 md:py-8">
-        <div className="mb-4 md:mb-10 p-3 md:p-4 mx-2 md:mx-0 bg-gradient-to-br from-indigo-600/5 via-slate-800/40 to-blue-600/5 border border-slate-700/30 rounded-2xl md:rounded-[2rem] flex items-center gap-3 md:gap-4 shadow-xl backdrop-blur-sm relative overflow-hidden group">
+        <div className="mb-4 md:mb-10 p-3 md:p-4 mx-2 md:mx-0 bg-gradient-to-br from-indigo-600/10 via-slate-800/40 to-blue-600/10 border border-slate-700/30 rounded-2xl md:rounded-[2rem] flex items-center gap-3 md:gap-4 shadow-xl backdrop-blur-sm relative overflow-hidden group">
           <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 blur-[40px] rounded-full -mr-10 -mt-10"></div>
           <div className="relative z-10 overflow-hidden pl-2">
-            <h2 className="text-xs md:text-sm font-bold text-slate-300 tracking-wide uppercase opacity-70 truncate">Studio Dashboard</h2>
+            <h2 className="text-xs md:text-sm font-bold text-slate-300 tracking-wide uppercase opacity-70 truncate">
+              Welcome back, <span className="text-white">{user.name.split(' ')[0]}</span>
+            </h2>
           </div>
           <div className="ml-auto flex gap-3 relative z-10">
              <div className="px-2 md:px-3 py-1 md:py-1.5 bg-white/5 border border-white/10 rounded-lg md:rounded-xl text-[9px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5 md:gap-2 whitespace-nowrap">
                <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
-               System Online
+               AI Neural Link Active
              </div>
           </div>
         </div>
 
         <div className="flex justify-center mb-6 md:mb-10 px-2 md:px-0">
-          <div className="bg-slate-900/80 p-1 rounded-2xl md:rounded-3xl border border-slate-700 backdrop-blur-md flex w-full md:w-auto gap-1 shadow-2xl overflow-x-auto no-scrollbar">
+          <div className="bg-slate-900/80 p-1.5 rounded-2xl md:rounded-3xl border border-slate-700 backdrop-blur-md flex w-full md:w-auto gap-1 shadow-2xl overflow-x-auto no-scrollbar">
             <button 
               onClick={() => setMode('general')}
-              className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-3 md:px-6 py-2.5 md:py-3 rounded-xl md:rounded-2xl font-bold transition-all duration-300 text-[10px] md:text-sm whitespace-nowrap ${mode === 'general' ? 'bg-blue-600 text-white shadow-xl shadow-blue-600/20' : 'text-slate-500 hover:text-slate-300 hover:bg-white/5'}`}
+              className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-3 md:px-6 py-2.5 md:py-3.5 rounded-xl md:rounded-2xl font-bold transition-all duration-300 text-[10px] md:text-sm whitespace-nowrap ${mode === 'general' ? 'bg-blue-600 text-white shadow-xl shadow-blue-600/20' : 'text-slate-500 hover:text-slate-300 hover:bg-white/5'}`}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className={`h-3.5 w-3.5 md:h-4 md:w-4 transition-colors ${mode === 'general' ? 'text-white' : 'text-blue-400'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-              </svg>
               Umum
             </button>
             <button 
               onClick={() => setMode('clothes')}
-              className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-3 md:px-6 py-2.5 md:py-3 rounded-xl md:rounded-2xl font-bold transition-all duration-300 text-[10px] md:text-sm whitespace-nowrap ${mode === 'clothes' ? 'bg-indigo-600 text-white shadow-xl shadow-indigo-600/20' : 'text-slate-500 hover:text-slate-300 hover:bg-white/5'}`}
+              className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-3 md:px-6 py-2.5 md:py-3.5 rounded-xl md:rounded-2xl font-bold transition-all duration-300 text-[10px] md:text-sm whitespace-nowrap ${mode === 'clothes' ? 'bg-indigo-600 text-white shadow-xl shadow-indigo-600/20' : 'text-slate-500 hover:text-slate-300 hover:bg-white/5'}`}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className={`h-3.5 w-3.5 md:h-4 md:w-4 transition-colors ${mode === 'clothes' ? 'text-white' : 'text-indigo-400'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M20.38 3.46 16 2a4 4 0 0 0-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z" />
-              </svg>
-              Baju
+              Ganti Baju
             </button>
             <button 
               onClick={() => setMode('reference')}
-              className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-3 md:px-6 py-2.5 md:py-3 rounded-xl md:rounded-2xl font-bold transition-all duration-300 text-[10px] md:text-sm whitespace-nowrap ${mode === 'reference' ? 'bg-cyan-600 text-white shadow-xl shadow-cyan-600/20' : 'text-slate-500 hover:text-slate-300 hover:bg-white/5'}`}
+              className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-3 md:px-6 py-2.5 md:py-3.5 rounded-xl md:rounded-2xl font-bold transition-all duration-300 text-[10px] md:text-sm whitespace-nowrap ${mode === 'reference' ? 'bg-cyan-600 text-white shadow-xl shadow-cyan-600/20' : 'text-slate-500 hover:text-slate-300 hover:bg-white/5'}`}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className={`h-3.5 w-3.5 md:h-4 md:w-4 transition-colors ${mode === 'reference' ? 'text-white' : 'text-cyan-400'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
               Referensi
             </button>
           </div>
@@ -192,7 +202,7 @@ const App: React.FC = () => {
           <div className="space-y-4 md:space-y-8">
             <section className="bg-slate-800/40 p-4 md:p-8 rounded-2xl md:rounded-[2.5rem] border border-slate-700/50 shadow-2xl backdrop-blur-sm">
               <div className="flex items-center justify-between mb-4 md:mb-6">
-                <h2 className="text-[10px] md:text-xs font-black uppercase tracking-[0.2em] text-slate-500">Langkah 1: Unggah Sumber</h2>
+                <h2 className="text-[10px] md:text-xs font-black uppercase tracking-[0.2em] text-slate-500">Langkah 1: Unggah Gambar</h2>
                 <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-slate-900 border border-slate-700 flex items-center justify-center text-[8px] md:text-[10px] font-bold text-slate-400">01</div>
               </div>
               <ImageUploader onUpload={handleImageUpload} currentImage={sourceImage} />
@@ -246,7 +256,7 @@ const App: React.FC = () => {
           <div className="space-y-4 md:space-y-8 sticky top-20 md:top-24">
             <section className="bg-slate-800/40 p-4 md:p-8 rounded-2xl md:rounded-[2.5rem] border border-slate-700/50 shadow-2xl backdrop-blur-sm min-h-[400px] md:min-h-[580px] flex flex-col relative overflow-hidden">
               <div className="flex items-center justify-between mb-4 md:mb-8">
-                <h2 className="text-[10px] md:text-xs font-black uppercase tracking-[0.2em] text-slate-500">Langkah 3: Output Preview</h2>
+                <h2 className="text-[10px] md:text-xs font-black uppercase tracking-[0.2em] text-slate-500">Langkah 3: Preview Output</h2>
                 <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-slate-900 border border-slate-700 flex items-center justify-center text-[8px] md:text-[10px] font-bold text-slate-400">03</div>
               </div>
               
@@ -262,30 +272,30 @@ const App: React.FC = () => {
                 onClick={() => { setSourceImage(null); setRefImage(null); setResultImage(null); setStatus(AppStatus.IDLE); setPrompt(''); }}
                 className="w-full py-4 md:py-5 bg-slate-900/80 hover:bg-slate-800 border border-slate-700 rounded-2xl md:rounded-3xl transition-all font-bold flex items-center justify-center gap-3 group shadow-xl text-sm md:text-base"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 md:h-5 md:w-5 text-slate-500 group-hover:rotate-180 transition-transform duration-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                </svg>
-                Ulang Project
+                Reset Studio
               </button>
             )}
           </div>
         </div>
       </main>
 
-      <footer className="py-6 md:py-8 border-t border-slate-800/50 text-center space-y-2 md:space-y-3">      
-        <div className="flex flex-col items-center gap-2 px-2">
-          <p className="text-slate-500 text-[10px] md:text-xs font-medium">© 2025 MAMBORO-AI STUDIO. All rights reserved.</p>
+      <footer className="py-8 border-t border-slate-800/50 text-center space-y-4">      
+        <div className="flex flex-col items-center gap-4">
           <a 
             href="https://github.com/andrymamboro" 
             target="_blank" 
             rel="noopener noreferrer"
-            className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-[10px] md:text-xs font-semibold group"
+            className="flex items-center gap-2 px-4 py-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-slate-600 rounded-full text-[10px] md:text-xs font-bold text-slate-400 hover:text-white transition-all group shadow-lg"
           >
-            <svg className="w-3 h-3 md:w-4 md:h-4 fill-current" viewBox="0 0 24 24" aria-hidden="true">
-              <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd" />
+            <svg className="w-4 h-4 fill-current transition-transform group-hover:scale-110" viewBox="0 0 24 24">
+              <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.041-1.416-4.041-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
             </svg>
-            andrymamboro
+            <span>View GitHub andrymamboro</span>
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+            </svg>
           </a>
+          <p className="text-slate-500 text-[10px] md:text-xs font-medium uppercase tracking-[0.2em]">© 2025 MAMBORO-AI STUDIO. INDONESIA.</p>
         </div>
       </footer>
     </div>

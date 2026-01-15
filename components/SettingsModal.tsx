@@ -1,13 +1,21 @@
+
 import React from 'react';
+
+interface UserProfile {
+  name: string;
+  email: string;
+  picture: string;
+}
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
   onLogout: () => void;
   quota: number;
+  user: UserProfile;
 }
 
-const SettingsModal: React.FC<Props> = ({ isOpen, onClose, onLogout, quota }) => {
+const SettingsModal: React.FC<Props> = ({ isOpen, onClose, onLogout, quota, user }) => {
   if (!isOpen) return null;
 
   const handleChangeKey = async () => {
@@ -22,58 +30,67 @@ const SettingsModal: React.FC<Props> = ({ isOpen, onClose, onLogout, quota }) =>
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-slate-900 border border-slate-800 w-full max-w-md rounded-[2rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
-        <div className="px-8 pt-8 pb-4 flex items-center justify-between">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-300">
+      <div className="bg-slate-900 border border-slate-800 w-full max-w-md rounded-[2.5rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+        <div className="p-8 pb-4 flex items-center justify-between">
           <div className="flex flex-col">
-            <h2 className="text-xl font-bold text-white leading-tight">Pengaturan</h2>
-            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">Google AI Cloud Session</p>
+            <h2 className="text-2xl font-black text-white leading-tight">Akaun</h2>
+            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-[0.3em] mt-1">Google Identity Session</p>
           </div>
-          <button onClick={onClose} className="text-slate-500 hover:text-white transition-colors p-2 hover:bg-white/5 rounded-full">
+          <button onClick={onClose} className="text-slate-500 hover:text-white transition-colors p-2.5 bg-white/5 hover:bg-white/10 rounded-full">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
 
-        <div className="px-8 pb-8 space-y-6 mt-4">
+        <div className="px-8 pb-10 space-y-6">
+          <div className="flex flex-col items-center py-6 gap-4">
+             <div className="relative">
+                <img src={user.picture} alt={user.name} className="w-24 h-24 rounded-full border-4 border-slate-800 shadow-2xl" />
+                <div className="absolute bottom-0 right-0 w-8 h-8 bg-green-500 border-4 border-slate-900 rounded-full flex items-center justify-center">
+                   <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                </div>
+             </div>
+             <div className="text-center">
+                <h3 className="text-xl font-bold text-white">{user.name}</h3>
+                <p className="text-sm text-slate-500">{user.email}</p>
+             </div>
+          </div>
+
           <div className="space-y-4">
-            <div className="p-4 bg-slate-800/50 rounded-2xl border border-slate-700/50 flex items-center justify-between group">
+            <div className="p-5 bg-slate-800/40 rounded-3xl border border-slate-800 flex items-center justify-between group">
               <div>
-                <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Status Kuota</p>
-                <p className="text-sm text-slate-200">Tersisa <span className="text-cyan-400 font-bold">{quota} generasi</span> hari ini.</p>
+                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Status Token Harian</p>
+                <p className="text-base text-slate-200">Tersisa <span className="text-cyan-400 font-black">{quota} token</span></p>
               </div>
-              <div className="w-10 h-10 rounded-full border-2 border-slate-700 flex items-center justify-center text-[10px] font-black text-slate-500">
+              <div className="w-12 h-12 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-center text-xs font-black text-cyan-400">
                 {quota}
               </div>
             </div>
 
             <button 
               onClick={handleChangeKey}
-              className="w-full py-3.5 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 group"
+              className="w-full py-4 bg-slate-800/50 hover:bg-slate-800 text-slate-300 border border-slate-800 rounded-2xl text-sm font-bold transition-all flex items-center justify-center gap-3 group"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-cyan-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
               </svg>
-              Ganti Akun API Google
+              Refresh Google AI Key
             </button>
 
             <button 
               onClick={onLogout}
-              className="w-full py-3.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2"
+              className="w-full py-4 bg-red-500/5 hover:bg-red-500/10 text-red-500 border border-red-500/20 rounded-2xl text-sm font-bold transition-all flex items-center justify-center gap-3"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-              </svg>
-              Logout dari Mamboro-AI
+              Keluar Sesi Google
             </button>
           </div>
 
-          <div className="pt-4 border-t border-slate-800">
-            <p className="text-[10px] text-slate-600 text-center leading-relaxed">
-              Versi Aplikasi: 1.1.0 Image<br/>
-              Mamboro-Ai Pro Studio menggunakan infrastruktur Google Cloud.<br/>
-              © 2025 Mamboro-Ai Studio
+          <div className="pt-6 border-t border-slate-800">
+            <p className="text-[10px] text-slate-600 text-center leading-relaxed font-medium">
+              V1.2.0 (Google Auth Integrated)<br/>
+              MAMBORO-AI © 2025. Terkoneksi ke Google Cloud Platform.
             </p>
           </div>
         </div>
