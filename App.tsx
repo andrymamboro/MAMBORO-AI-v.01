@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { processImageEdit } from './services/geminiService';
 import { AppStatus, AspectRatio } from './types';
