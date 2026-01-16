@@ -1,4 +1,5 @@
 
+
 export type AspectRatio = "1:1" | "3:4" | "4:3" | "9:16" | "16:9";
 
 export enum AppStatus {
@@ -27,9 +28,9 @@ declare global {
   interface Window {
     /**
      * The aistudio object is injected into the window.
-     * // Fix: Removed 'readonly' to match the existing environment declaration and prevent modifier mismatch.
      */
-    aistudio: AIStudio;
+    // Fix: Added 'readonly' modifier to ensure consistency with existing global environment declarations.
+    readonly aistudio: AIStudio;
   }
 }
 

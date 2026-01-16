@@ -1,7 +1,6 @@
-
 import React from 'react';
-import Logo from './Logo';
-import { getAvatarColor } from './LoginScreen';
+import Logo from './components/Logo';
+import { getAvatarColor } from './components/LoginScreen';
 
 interface UserProfile {
   name: string;
