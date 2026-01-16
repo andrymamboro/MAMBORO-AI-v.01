@@ -1,4 +1,5 @@
 
+/// <reference types="vite/client" />
 import { GoogleGenAI } from "@google/genai";
 import { AspectRatio, EditResult } from "../types";
 
@@ -9,7 +10,7 @@ export const processImageEdit = async (
   refImage?: string | null
 ): Promise<EditResult> => {
   // Selalu buat instance baru sebelum pemanggilan untuk memastikan menggunakan kunci API terbaru
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_API_KEY });
 
   // Helper untuk membersihkan data base64
   const parseBase64 = (base64: string) => {
