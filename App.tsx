@@ -130,16 +130,7 @@ const App: React.FC = () => {
     } catch (err: any) {
       console.error("Edit Error:", err);
       setStatus(AppStatus.ERROR);
-      
-      // Fix: Follow guideline to prompt for API key selection if Requested entity was not found
-      if (err.message && err.message.includes("entity was not found")) {
-        setErrorMsg("Koneksi API bermasalah. Silakan pilih kembali Kunci API Anda.");
-        if (window.aistudio) {
-          window.aistudio.openSelectKey();
-        }
-      } else {
-        setErrorMsg(err.message || "Terjadi kesalahan.");
-      }
+      setErrorMsg(err.message || "Terjadi kesalahan pada layanan AI. Silakan coba beberapa saat lagi.");
     }
   };
 
@@ -162,52 +153,82 @@ const App: React.FC = () => {
         user={user}
       />
 
-      <main className="flex-grow w-full max-w-6xl mx-auto md:px-4 py-2 md:py-8">
-        <div className="flex justify-center mb-6 md:mb-10 px-2 md:px-0">
-          <div className="bg-slate-900/80 p-1.5 rounded-2xl md:rounded-3xl border border-slate-700 backdrop-blur-md flex w-full md:w-auto gap-1 shadow-2xl overflow-x-auto no-scrollbar">
+      <main className="flex-grow w-full max-w-[1400px] mx-auto px-4 py-4 md:py-6">
+        <div className="flex justify-center mb-6 md:mb-8 px-2 md:px-0">
+          <div className="bg-slate-900/80 p-1.5 rounded-2xl md:rounded-3xl border border-slate-700 backdrop-blur-md flex w-full md:w-auto gap-2 shadow-2xl overflow-x-auto no-scrollbar">
             {/* Tab Umum */}
             <button 
               onClick={() => setMode('general')} 
-              className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-4 md:px-6 py-2.5 md:py-3.5 rounded-xl md:rounded-2xl font-bold transition-all duration-300 text-[10px] md:text-sm whitespace-nowrap ${mode === 'general' ? 'bg-blue-600 text-white' : 'text-slate-500 hover:text-slate-300'}`}
+              className={`flex-1 md:flex-none flex items-center justify-center gap-3 px-5 md:px-8 py-2.5 md:py-3 rounded-xl md:rounded-2xl font-black transition-all duration-300 text-[11px] md:text-sm whitespace-nowrap group ${
+                mode === 'general' ? 'bg-blue-600 text-white ring-2 ring-blue-500/20' : 'text-slate-500 hover:text-slate-300'
+              }`}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className={`h-4 w-4 md:h-5 md:w-5 ${mode === 'general' ? 'text-white' : 'text-blue-400'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
+              <div className={`p-1 rounded-lg transition-all ${mode === 'general' ? 'bg-white/20 scale-110' : 'bg-slate-800 group-hover:bg-slate-700'}`}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <linearGradient id="gradUmumMagic" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#fbbf24" />
+                      <stop offset="100%" stopColor="#f59e0b" />
+                    </linearGradient>
+                  </defs>
+                  <path d="M15 4L16 6M20 9L22 10M17 10L19 12M5 19L14 10L11 7L2 16L5 19Z" stroke={mode === 'general' ? 'white' : 'url(#gradUmumMagic)'} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
               Umum
             </button>
             
             {/* Tab Ganti Baju */}
             <button 
               onClick={() => setMode('clothes')} 
-              className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-4 md:px-6 py-2.5 md:py-3.5 rounded-xl md:rounded-2xl font-bold transition-all duration-300 text-[10px] md:text-sm whitespace-nowrap ${mode === 'clothes' ? 'bg-indigo-600 text-white' : 'text-slate-500 hover:text-slate-300'}`}
+              className={`flex-1 md:flex-none flex items-center justify-center gap-3 px-5 md:px-8 py-2.5 md:py-3 rounded-xl md:rounded-2xl font-black transition-all duration-300 text-[11px] md:text-sm whitespace-nowrap group ${
+                mode === 'clothes' ? 'bg-indigo-600 text-white ring-2 ring-indigo-500/20' : 'text-slate-500 hover:text-slate-300'
+              }`}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className={`h-4 w-4 md:h-5 md:w-5 ${mode === 'clothes' ? 'text-white' : 'text-indigo-400'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.38 3.46 16 2a4 4 0 0 0-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z" />
-              </svg>
+              <div className={`p-1 rounded-lg transition-all ${mode === 'clothes' ? 'bg-white/20 scale-110' : 'bg-slate-800 group-hover:bg-slate-700'}`}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <linearGradient id="gradClothesHanger" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#a855f7" />
+                      <stop offset="100%" stopColor="#6366f1" />
+                    </linearGradient>
+                  </defs>
+                  <path d="M12 2V5M12 5C14.5 5 18 7.5 21 11H3C6 7.5 9.5 5 12 5ZM12 2C13 2 14 3 14 4C14 5 13 6 12 6" stroke={mode === 'clothes' ? 'white' : 'url(#gradClothesHanger)'} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
               Ganti Baju
             </button>
             
             {/* Tab Referensi */}
             <button 
               onClick={() => setMode('reference')} 
-              className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-4 md:px-6 py-2.5 md:py-3.5 rounded-xl md:rounded-2xl font-bold transition-all duration-300 text-[10px] md:text-sm whitespace-nowrap ${mode === 'reference' ? 'bg-cyan-600 text-white' : 'text-slate-500 hover:text-slate-300'}`}
+              className={`flex-1 md:flex-none flex items-center justify-center gap-3 px-5 md:px-8 py-2.5 md:py-3 rounded-xl md:rounded-2xl font-black transition-all duration-300 text-[11px] md:text-sm whitespace-nowrap group ${
+                mode === 'reference' ? 'bg-cyan-600 text-white ring-2 ring-cyan-500/20' : 'text-slate-500 hover:text-slate-300'
+              }`}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className={`h-4 w-4 md:h-5 md:w-5 ${mode === 'reference' ? 'text-white' : 'text-cyan-400'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
+              <div className={`p-1 rounded-lg transition-all ${mode === 'reference' ? 'bg-white/20 scale-110' : 'bg-slate-800 group-hover:bg-slate-700'}`}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <linearGradient id="gradRefGallery" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#22d3ee" />
+                      <stop offset="100%" stopColor="#3b82f6" />
+                    </linearGradient>
+                  </defs>
+                  <rect x="3" y="7" width="14" height="14" rx="2" stroke={mode === 'reference' ? 'white' : 'url(#gradRefGallery)'} strokeWidth="2.5" strokeLinejoin="round"/>
+                </svg>
+              </div>
               Referensi
             </button>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-10 items-start px-2 md:px-0">
-          <div className="space-y-4 md:space-y-8">
-            <section className="bg-slate-800/40 p-4 md:p-8 rounded-2xl md:rounded-[2.5rem] border border-slate-700/50 shadow-2xl backdrop-blur-sm">
+        <div className="grid grid-cols-1 lg:grid-cols-[460px_1fr] gap-6 md:gap-8 items-start">
+          <div className="space-y-6">
+            <section className="bg-slate-800/40 p-4 md:p-6 rounded-2xl md:rounded-3xl border border-slate-700/50 shadow-2xl backdrop-blur-sm">
               <ImageUploader onUpload={handleImageUpload} currentImage={sourceImage} />
             </section>
 
             {sourceImage && (
-              <div className="animate-in slide-in-from-bottom-6 duration-500 space-y-4 md:space-y-8">
+              <div className="animate-in slide-in-from-bottom-6 duration-500 space-y-6">
                 {mode === 'general' ? (
                   <EditorPanel prompt={prompt} setPrompt={setPrompt} aspectRatio={aspectRatio} setAspectRatio={setAspectRatio} onEdit={() => handleEdit()} isLoading={status === AppStatus.PROCESSING} isQuotaExhausted={quota <= 0} />
                 ) : mode === 'clothes' ? (
@@ -221,8 +242,8 @@ const App: React.FC = () => {
             {errorMsg && <ErrorMessage message={errorMsg} />}
           </div>
 
-          <div className="space-y-4 md:space-y-8 sticky top-20 md:top-24">
-            <section className="bg-slate-800/40 p-4 md:p-8 rounded-2xl md:rounded-[2.5rem] border border-slate-700/50 shadow-2xl backdrop-blur-sm min-h-[400px] md:min-h-[580px] flex flex-col relative overflow-hidden">
+          <div className="space-y-6 lg:sticky lg:top-24 h-fit">
+            <section className="bg-slate-800/40 p-4 md:p-6 rounded-2xl md:rounded-3xl border border-slate-700/50 shadow-2xl backdrop-blur-sm flex flex-col relative overflow-hidden h-full min-h-[500px] lg:min-h-[calc(100vh-160px)]">
               <div ref={resultRef} className="flex-grow flex items-center justify-center relative bg-slate-950/50 rounded-2xl md:rounded-3xl border border-slate-800/50 shadow-inner group overflow-hidden">
                 {status === AppStatus.PROCESSING && <LoadingOverlay />}
                 <ResultGallery resultImage={resultImage} sourceImage={sourceImage} />

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { getAvatarColor } from './LoginScreen';
 
@@ -18,17 +17,6 @@ interface Props {
 
 const SettingsModal: React.FC<Props> = ({ isOpen, onClose, onLogout, quota, user }) => {
   if (!isOpen) return null;
-
-  const handleChangeKey = async () => {
-    try {
-      if (window.aistudio) {
-        await window.aistudio.openSelectKey();
-        onClose();
-      }
-    } catch (e) {
-      console.error(e);
-    }
-  };
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-300">
@@ -79,16 +67,6 @@ const SettingsModal: React.FC<Props> = ({ isOpen, onClose, onLogout, quota, user
                 {quota}
               </div>
             </div>
-
-            <button 
-              onClick={handleChangeKey}
-              className="w-full py-4 bg-slate-800/50 hover:bg-slate-800 text-slate-300 border border-slate-800 rounded-2xl text-sm font-bold transition-all flex items-center justify-center gap-3 group"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
-              </svg>
-              Ganti Google AI Key
-            </button>
 
             <button 
               onClick={onLogout}

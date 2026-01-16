@@ -1,4 +1,3 @@
-
 import React, { useRef } from 'react';
 
 interface Props {
@@ -24,11 +23,11 @@ const ImageUploader: React.FC<Props> = ({ onUpload, currentImage }) => {
 
   if (currentImage) {
     return (
-      <div className="relative group overflow-hidden rounded-xl border border-slate-700 bg-black">
+      <div className="relative group overflow-hidden rounded-xl md:rounded-2xl border border-slate-700 bg-black">
         <img 
           src={currentImage} 
           alt="Upload preview" 
-          className="w-full h-auto max-h-[500px] object-contain transition-transform duration-500 group-hover:scale-[1.02]" 
+          className="w-full h-auto max-h-[300px] object-contain transition-transform duration-500 group-hover:scale-[1.02]" 
         />
         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4">
           <button 
@@ -54,16 +53,16 @@ const ImageUploader: React.FC<Props> = ({ onUpload, currentImage }) => {
   return (
     <div 
       onClick={triggerUpload}
-      className="border-2 border-dashed border-slate-700 hover:border-blue-500 bg-slate-800/20 hover:bg-blue-500/5 rounded-2xl py-16 px-8 transition-all cursor-pointer flex flex-col items-center gap-4 group"
+      className="border-2 border-dashed border-slate-700 hover:border-blue-500 bg-slate-800/20 hover:bg-blue-500/5 rounded-2xl py-12 px-8 transition-all cursor-pointer flex flex-col items-center gap-4 group"
     >
-      <div className="w-16 h-16 bg-slate-800 rounded-2xl flex items-center justify-center text-slate-500 group-hover:text-blue-400 group-hover:scale-110 transition-all duration-300">
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <div className="w-12 h-12 bg-slate-800 rounded-xl flex items-center justify-center text-slate-500 group-hover:text-blue-400 group-hover:scale-110 transition-all duration-300">
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
         </svg>
       </div>
       <div className="text-center">
-        <p className="text-lg font-semibold text-slate-300">Click to upload image</p>
-        <p className="text-sm text-slate-500 mt-1">PNG, JPG, or WEBP supported</p>
+        <p className="text-base font-bold text-slate-300 uppercase tracking-widest">Unggah Gambar</p>
+        <p className="text-[10px] text-slate-500 mt-1 uppercase tracking-tight">PNG, JPG, WEBP • Max 10MB</p>
       </div>
       <input 
         type="file" 

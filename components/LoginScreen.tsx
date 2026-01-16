@@ -1,11 +1,10 @@
-
 import React, { useState, useEffect } from 'react';
 import Logo from './Logo';
 
 interface UserProfile {
   name: string;
   email: string;
-  picture: string; // Tetap ada di tipe data, tapi kita akan mengosongkannya untuk memicu avatar inisial
+  picture: string; 
 }
 
 interface Props {
@@ -30,7 +29,6 @@ const MOCK_USERS: UserProfile[] = [
   },
 ];
 
-// Helper untuk mendapatkan warna berdasarkan inisial
 export const getAvatarColor = (name: string) => {
   const char = name.charAt(0).toUpperCase();
   const colors: Record<string, string> = {
@@ -66,21 +64,10 @@ const LoginScreen: React.FC<Props> = ({ onLoginSuccess }) => {
     setIsLoading(true);
     setShowAccountPicker(false);
     
-    await new Promise(resolve => setTimeout(resolve, 1200));
-
-    try {
-      if (window.aistudio) {
-        const hasKey = await window.aistudio.hasSelectedApiKey();
-        if (!hasKey) {
-          await window.aistudio.openSelectKey();
-        }
-      }
-      onLoginSuccess(user);
-    } catch (err) {
-      onLoginSuccess(user);
-    } finally {
-      setIsLoading(false);
-    }
+    // Simulate auth delay
+    await new Promise(resolve => setTimeout(resolve, 800));
+    onLoginSuccess(user);
+    setIsLoading(false);
   };
 
   return (
@@ -105,13 +92,13 @@ const LoginScreen: React.FC<Props> = ({ onLoginSuccess }) => {
         <div className="bg-slate-900/60 p-8 rounded-[2.5rem] border border-slate-800/50 backdrop-blur-xl shadow-2xl">
           <div className="mb-8">
             <h2 className="text-xl font-bold text-slate-100">Selamat Datang</h2>
-            <p className="text-slate-400 text-sm mt-2 leading-relaxed">Gunakan akun Google untuk masuk ke Studio Editing Mamboro-AI.</p>
+            <p className="text-slate-400 text-sm mt-2 leading-relaxed">Masuk ke Studio Editing Mamboro-AI.</p>
           </div>
 
           {isLoading ? (
             <div className="flex flex-col items-center gap-4 py-6">
                <div className="w-10 h-10 border-4 border-slate-800 border-t-blue-500 rounded-full animate-spin"></div>
-               <p className="text-[10px] text-blue-500 font-bold tracking-widest uppercase">Sinkronisasi Akun...</p>
+               <p className="text-[10px] text-blue-500 font-bold tracking-widest uppercase">Sinkronisasi...</p>
             </div>
           ) : (
             <button 
@@ -167,7 +154,6 @@ const LoginScreen: React.FC<Props> = ({ onLoginSuccess }) => {
             </div>
 
             <div className="p-6 text-[10px] text-slate-400 border-t border-slate-100 mt-2">
-              {/* Kalimat dihapus sesuai permintaan */}
             </div>
           </div>
         </div>
