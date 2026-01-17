@@ -28,10 +28,21 @@
 Jika Anda ingin meng-host aplikasi ini sendiri di GitHub:
 
 1. **Push Code**: Pastikan semua kode sudah di-push ke branch `main`.
-2. **Ubah Settings di GitHub**:
+2. **Setup Secrets (Penting)**:
+   - Buka Repository -> **Settings** -> **Secrets and variables** -> **Actions**.
+   - Klik **New repository secret**.
+   - Tambahkan variabel berikut (sesuai isi file `.env` lokal Anda):
+     - `VITE_API_KEY`
+     - `VITE_FIREBASE_API_KEY`
+     - `VITE_FIREBASE_AUTH_DOMAIN`
+     - `VITE_FIREBASE_PROJECT_ID`
+     - `VITE_FIREBASE_STORAGE_BUCKET`
+     - `VITE_FIREBASE_MESSAGING_SENDER_ID`
+     - `VITE_FIREBASE_APP_ID`
+3. **Ubah Settings di GitHub**:
    - Buka Repository -> **Settings** -> **Pages**.
    - Ubah **Source** dari "Deploy from a branch" menjadi **"GitHub Actions"**.
-3. **Tunggu Deployment**: GitHub Actions akan otomatis melakukan build (Vite) dan menayangkan aplikasi Anda di URL `https://username.github.io/repository-name/`.
+4. **Tunggu Deployment**: GitHub Actions akan otomatis melakukan build (Vite) dan menayangkan aplikasi Anda di URL `https://username.github.io/repository-name/`.
 
 ## ⚙️ Teknis
 - **Model**: `gemini-2.5-flash-image`
