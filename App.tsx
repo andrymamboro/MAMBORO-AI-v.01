@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { processImageEdit } from './services/geminiService';
+import { auth, onAuthStateChanged } from './services/firebase';
 import { AppStatus, AspectRatio } from './types';
 
 // Components
@@ -22,13 +23,10 @@ interface UserProfile {
 
 type AppMode = 'general' | 'clothes' | 'reference';
 const MAX_DAILY_QUOTA = 5;
-const AUTH_KEY = 'mamboro_user_profile_v2';
 
 const App: React.FC = () => {
-  const [user, setUser] = useState<UserProfile | null>(() => {
-    const saved = localStorage.getItem(AUTH_KEY);
-    return saved ? JSON.parse(saved) : null;
-  });
+  const [user, setUser] = useState<UserProfile | null>(null);
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
   
   const [mode, setMode] = useState<AppMode>('general');
   const [sourceImage, setSourceImage] = useState<string | null>(null);
@@ -43,6 +41,25 @@ const App: React.FC = () => {
 
   const resultRef = useRef<HTMLDivElement>(null);
 
+  // Monitor Firebase Auth state
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      if (firebaseUser) {
+        setUser({
+          name: firebaseUser.displayName || 'User',
+          email: firebaseUser.email || '',
+          picture: firebaseUser.photoURL || ''
+        });
+      } else {
+        setUser(null);
+      }
+      setIsAuthLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  // Sync Quota based on user email
   useEffect(() => {
     if (!user) return;
 
@@ -70,19 +87,17 @@ const App: React.FC = () => {
     initQuota();
   }, [user]);
 
-  const handleLogin = (profile: UserProfile) => {
-    localStorage.setItem(AUTH_KEY, JSON.stringify(profile));
-    setUser(profile);
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem(AUTH_KEY);
-    setUser(null);
-    setIsSettingsOpen(false);
-    setSourceImage(null);
-    setRefImage(null);
-    setResultImage(null);
-    setStatus(AppStatus.IDLE);
+  const handleLogout = async () => {
+    try {
+      await auth.signOut();
+      setIsSettingsOpen(false);
+      setSourceImage(null);
+      setRefImage(null);
+      setResultImage(null);
+      setStatus(AppStatus.IDLE);
+    } catch (error) {
+      console.error("Logout error", error);
+    }
   };
 
   const handleImageUpload = (base64: string) => {
@@ -134,7 +149,18 @@ const App: React.FC = () => {
     }
   };
 
-  if (!user) return <LoginScreen onLoginSuccess={handleLogin} />;
+  if (isAuthLoading) {
+    return (
+      <div className="min-h-screen bg-[#0f172a] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-blue-400 font-bold uppercase tracking-widest text-xs">Menghubungkan...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) return <LoginScreen onLoginSuccess={() => {}} />;
 
   return (
     <div className="min-h-screen flex flex-col bg-[#0f172a] text-slate-100 animate-in fade-in duration-700 overflow-x-hidden">
