@@ -62,7 +62,7 @@ export const processImageEdit = async (
 
   try {
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash-image',
+      model: 'gemini-2.0-flash-exp',
       contents: { parts },
       config: {
         imageConfig: {
@@ -98,7 +98,7 @@ export const processImageEdit = async (
     
     const errMsg = error.message || "";
     if (errMsg.includes("429") || errMsg.includes("RESOURCE_EXHAUSTED") || errMsg.includes("Quota exceeded")) {
-      throw new Error("Kuota API Google habis (Limit Provider). Coba tambah API Key atau tunggu sebentar.");
+      throw new Error("Kuota API habis atau Model memerlukan Billing. Pastikan API Key valid dan Billing aktif di Google AI Studio.");
     }
     
     if (errMsg.includes("API key not valid") || errMsg.includes("entity was not found")) {

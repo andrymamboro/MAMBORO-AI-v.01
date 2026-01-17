@@ -4,6 +4,7 @@
   "private": true,
   "description": "Professional AI Image Editor powered by Gemini 2.5 Flash",
   "type": "module",
+  "homepage": "https://andrymamboro.github.io/MAMBORO-AI/",
   "repository": {
     "type": "git",
     "url": "https://github.com/andrymamboro/MAMBORO-AI.git"

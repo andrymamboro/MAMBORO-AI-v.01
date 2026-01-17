@@ -1,10 +1,10 @@
 # 🚀 Mamboro-Ai Pro Studio
 
-![Mamboro-Ai Banner](https://img.shields.io/badge/AI-Gemini_2.5_Flash-blueviolet?style=for-the-badge&logo=google-gemini)
+# ![Mamboro-Ai Banner](https://img.shields.io/badge/AI-Gemini_2.0_Flash-blueviolet?style=for-the-badge&logo=google-gemini)
 ![React](https://img.shields.io/badge/React-19-blue?style=for-the-badge&logo=react)
 ![Tailwind](https://img.shields.io/badge/Tailwind_CSS-3.4-38B2AC?style=for-the-badge&logo=tailwind-css)
 
-**Mamboro-Ai Pro Studio** adalah platform penyuntingan gambar tingkat lanjut yang ditenagai oleh model AI terbaru **Gemini 2.5 Flash Image (Nano Banana)**. Aplikasi ini memungkinkan pengguna untuk melakukan manipulasi gambar yang kompleks melalui instruksi bahasa alami yang sederhana.
+**Mamboro-Ai Pro Studio** adalah platform penyuntingan gambar tingkat lanjut yang ditenagai oleh model AI terbaru **Gemini 2.0 Flash Experimental**. Aplikasi ini memungkinkan pengguna untuk melakukan manipulasi gambar yang kompleks melalui instruksi bahasa alami yang sederhana.
 
 ## ✨ Fitur Unggulan
 
@@ -25,27 +25,21 @@
 
 ## 🚀 Panduan Deployment (GitHub Pages)
 
-Jika Anda ingin meng-host aplikasi ini sendiri di GitHub:
+Jika Anda ingin meng-host aplikasi ini sendiri di GitHub secara manual (melalui Visual Studio Code):
 
-1. **Push Code**: Pastikan semua kode sudah di-push ke branch `main`.
-2. **Setup Secrets (Penting)**:
-   - Buka Repository -> **Settings** -> **Secrets and variables** -> **Actions**.
-   - Klik **New repository secret**.
-   - Tambahkan variabel berikut (sesuai isi file `.env` lokal Anda):
-     - `VITE_API_KEY`
-     - `VITE_FIREBASE_API_KEY`
-     - `VITE_FIREBASE_AUTH_DOMAIN`
-     - `VITE_FIREBASE_PROJECT_ID`
-     - `VITE_FIREBASE_STORAGE_BUCKET`
-     - `VITE_FIREBASE_MESSAGING_SENDER_ID`
-     - `VITE_FIREBASE_APP_ID`
-3. **Ubah Settings di GitHub**:
+1. **Persiapan**:
+   - Pastikan file `.env` di komputer Anda sudah terisi dengan API Key yang benar.
+2. **Deploy**:
+   - Buka terminal di Visual Studio Code.
+   - Jalankan perintah: `npm run deploy`
+3. **Pengaturan GitHub**:
    - Buka Repository -> **Settings** -> **Pages**.
-   - Ubah **Source** dari "Deploy from a branch" menjadi **"GitHub Actions"**.
-4. **Tunggu Deployment**: GitHub Actions akan otomatis melakukan build (Vite) dan menayangkan aplikasi Anda di URL `https://username.github.io/repository-name/`.
+   - Pastikan **Source** diatur ke **"Deploy from a branch"**.
+   - Pilih branch **`gh-pages`** dan folder **`/(root)`**.
+4. **Selesai**: Aplikasi akan tayang di `https://andrymamboro.github.io/MAMBORO-AI/`.
 
 ## ⚙️ Teknis
-- **Model**: `gemini-2.5-flash-image`
+- **Model**: `gemini-2.0-flash-exp`
 - **SDK**: `@google/genai`
 - **Styling**: Tailwind CSS dengan tema "Slate-Neon"
 - **Environment**: Menggunakan `process.env.API_KEY` otomatis dari lingkungan eksekusi AI Studio.
