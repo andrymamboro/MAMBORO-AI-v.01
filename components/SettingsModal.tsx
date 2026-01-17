@@ -40,6 +40,7 @@ const SettingsModal: React.FC<Props> = ({ isOpen, onClose, onLogout, quota, user
                   <img 
                     src={user.picture} 
                     alt={user.name} 
+                    referrerPolicy="no-referrer"
                     className="w-24 h-24 rounded-full border-4 border-slate-800 shadow-2xl object-cover" 
                   />
                 ) : (

@@ -60,7 +60,7 @@ const Header: React.FC<Props> = ({ onOpenSettings, quota = 0, maxQuota = 5, user
             {user.picture ? (
               <img 
                 src={user.picture} 
-                alt={user.name} 
+              
                 className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full border border-slate-700 shadow-lg group-hover:scale-105 transition-transform object-cover" 
               />
             ) : (

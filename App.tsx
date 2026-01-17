@@ -23,6 +23,7 @@ interface UserProfile {
 
 type AppMode = 'general' | 'clothes' | 'reference';
 const MAX_DAILY_QUOTA = 5;
+const ADMIN_EMAILS = ["andry.saringgan85@gmail.com"]; // Masukkan email admin di sini
 
 const App: React.FC = () => {
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -62,6 +63,12 @@ const App: React.FC = () => {
   // Sync Quota based on user email
   useEffect(() => {
     if (!user) return;
+
+    // Bypass quota for admins
+    if (ADMIN_EMAILS.includes(user.email)) {
+      setQuota(9999);
+      return;
+    }
 
     const initQuota = () => {
       const today = new Date().toISOString().split('T')[0];
@@ -108,7 +115,9 @@ const App: React.FC = () => {
   };
 
   const handleEdit = async (customPrompt?: string, customRefImage?: string | null) => {
-    if (quota <= 0) {
+    const isAdmin = user && ADMIN_EMAILS.includes(user.email);
+
+    if (!isAdmin && quota <= 0) {
       setErrorMsg("Kuota harian aplikasi Anda telah habis. Silakan coba lagi besok.");
       return;
     }
@@ -133,10 +142,12 @@ const App: React.FC = () => {
       setResultImage(result.imageUrl);
       setStatus(AppStatus.SUCCESS);
       
-      const newQuota = Math.max(0, quota - 1);
-      setQuota(newQuota);
-      if (user) {
-        localStorage.setItem(`quota_${user.email}`, newQuota.toString());
+      if (!isAdmin) {
+        const newQuota = Math.max(0, quota - 1);
+        setQuota(newQuota);
+        if (user) {
+          localStorage.setItem(`quota_${user.email}`, newQuota.toString());
+        }
       }
       
       setTimeout(() => {

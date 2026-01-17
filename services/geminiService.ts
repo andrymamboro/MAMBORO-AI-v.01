@@ -7,8 +7,19 @@ export const processImageEdit = async (
   aspectRatio: AspectRatio = "1:1",
   refImage?: string | null
 ): Promise<EditResult> => {
+  // Support multiple keys separated by comma for load balancing
+  const envKeys = import.meta.env.VITE_API_KEY || import.meta.env.VITE_GEMINI_API_KEY || "";
+  const keys = envKeys.split(',').map(k => k.trim()).filter(k => k.length > 0);
+
+  if (keys.length === 0) {
+    throw new Error("Konfigurasi Error: API Key tidak ditemukan. Pastikan VITE_API_KEY atau VITE_GEMINI_API_KEY ada di file .env dan server di-restart.");
+  }
+
+  // Pick a random key
+  const apiKey = keys[Math.floor(Math.random() * keys.length)];
+
   // Use the API key from environment exclusively
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const ai = new GoogleGenAI({ apiKey });
 
   const parseBase64 = (base64: string) => {
     if (!base64.includes(';base64,')) {
@@ -87,7 +98,7 @@ export const processImageEdit = async (
     
     const errMsg = error.message || "";
     if (errMsg.includes("429") || errMsg.includes("RESOURCE_EXHAUSTED") || errMsg.includes("Quota exceeded")) {
-      throw new Error("Kuota API habis. Silakan coba beberapa saat lagi.");
+      throw new Error("Kuota API Google habis (Limit Provider). Coba tambah API Key atau tunggu sebentar.");
     }
     
     if (errMsg.includes("API key not valid") || errMsg.includes("entity was not found")) {
